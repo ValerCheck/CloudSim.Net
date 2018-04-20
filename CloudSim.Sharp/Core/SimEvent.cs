@@ -43,13 +43,13 @@ namespace CloudSim.Sharp.Core
 
         // Internal event types
 
-        public static int ENULL = 0;
+        public const int ENULL = 0;
 
-        public static int SEND = 1;
+        public const int SEND = 1;
 
-        public static int HOLD_DONE = 2;
+        public const int HOLD_DONE = 2;
 
-        public static int CREATE = 3;
+        public const int CREATE = 3;
 
         public SimEvent()
         {

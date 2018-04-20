@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace CloudSim.Sharp.Core
 {
@@ -43,9 +45,14 @@ namespace CloudSim.Sharp.Core
             _list.Add(newEvent);
         }
 
-        public IEnumerator<SimEvent> Enumerator
+        public bool Remove(SimEvent e)
         {
-            get { return _list.GetEnumerator(); }
+            return _list.Remove(e);
+        }
+
+        public IEnumerator<SimEvent> GetEnumerator()
+        {
+            return _list.GetEnumerator();
         }
 
         public int Size

@@ -94,6 +94,19 @@ namespace CloudSim.Sharp.Core
             }
         }
 
+        public static void AddEntityDynamically(SimEntity e)
+        {
+            if (e == null)
+            {
+                throw new ArgumentException("Adding null entity.");
+            }
+            else
+            {
+                WriteMessage($"Adding: {e.Name}");
+            }
+            e.StartEntity();
+        }
+
         private static void ValidateDelay(double delay)
         {
             if (delay < 0)
@@ -135,5 +148,159 @@ namespace CloudSim.Sharp.Core
             _entities.Find(e => e.Id == src).State = SimEntity.HOLDING;
         }
 
+        public static SimEvent Cancel(int src, Predicate p)
+        {
+            SimEvent ev = null;
+            IEnumerator<SimEvent> enumerator = _futureQueue.GetEnumerator();
+            do
+            {
+                ev = enumerator.Current;
+                if (ev.Source == src && p.Match(ev))
+                {
+                    _futureQueue.Remove(ev);
+                    break;
+                }
+            } while (enumerator.MoveNext());
+
+            return ev;
+        }
+
+        public static bool CancelAll(int src, Predicate p)
+        {
+            SimEvent ev = null;
+            int prevSize = _futureQueue.Size();
+            IEnumerator<SimEvent> enumerator = _futureQueue.GetEnumerator();
+            do
+            {
+                ev = enumerator.Current;
+                if (ev.Source == src && p.Match(ev))
+                {
+                    _futureQueue.Remove(ev);
+                }
+            } while (enumerator.MoveNext());
+
+            // In original CloudSim code on Java
+            // the comparison has such representation
+            // Not sure whether it is correct,
+            // because in case if at least one event
+            // will be removed, then prevSize will
+            // always be greater than actual size
+            return prevSize < _futureQueue.Size();
+        }
+
+        private static void ProcessEvent(SimEvent e)
+        {
+            int dest, src;
+            SimEntity destEnt;
+
+            if (e.EventTime < _clock)
+            {
+                throw new ArgumentException("Past event detected.");
+            }
+
+            _clock = e.EventTime;
+
+            switch (e.InternalType)
+            {
+                case SimEvent.ENULL:
+                    throw new ArgumentException("Event has a null type.");
+
+                case SimEvent.CREATE:
+                    SimEntity newEntity = (SimEntity)e.Data;
+                    AddEntityDynamically(newEntity);
+                    break;
+
+                case SimEvent.SEND:
+                    dest = e.Destination;
+                    if (dest < 0)
+                    {
+                        throw new ArgumentException("Attempt to send to null entity detected.");
+                    }
+                    else
+                    {
+                        int tag = e.Tag;
+                        destEnt = _entities.Find(ent => ent.Id == dest);
+                        if (destEnt.State == SimEntity.WAITING)
+                        {
+                            Predicate p;
+                            if (_waitPredicates.TryGetValue(dest, out p))
+                            {
+                                if (p == null || tag == 9999 || p.Match(e))
+                                {
+                                    destEnt.EventBuffer = (SimEvent)e.Clone();
+                                    destEnt.State = SimEntity.RUNNABLE;
+                                    _waitPredicates.Remove(dest);
+                                } 
+                                else
+                                {
+                                    _deferedQueue.AddEvent(e);
+                                }
+                            }
+                        } 
+                        else
+                        {
+                            _deferedQueue.AddEvent(e);
+                        }
+                    }
+                    break;
+                case SimEvent.HOLD_DONE:
+                    src = e.Source;
+                    if (src < 0)
+                    {
+                        throw new ArgumentException("Null entity holding.");
+                    }
+                    else
+                    {
+                        _entities.Find(ent => ent.Id == src).State = SimEntity.RUNNABLE;
+                    }
+                    break;
+            }
+        }
+
+        public static int Waiting(int d, Predicate p)
+        {
+            int count = 0;
+            SimEvent ev;
+            IEnumerator<SimEvent> enumerator = _deferedQueue.GetEnumerator();
+
+            do
+            {
+                var current = enumerator.Current;
+                if (current != null)
+                {
+                    ev = current;
+                    if (ev.Destination == d && p.Match(ev))
+                    {
+                        count++;
+                    }
+                }
+            } while (enumerator.MoveNext());
+            return count;
+        }
+
+        public static SimEvent Select(int src, Predicate p)
+        {
+            SimEvent ev = null;
+            IEnumerator<SimEvent> enumerator = _deferedQueue.GetEnumerator();
+            do
+            {
+                var current = enumerator.Current;
+                if (current != null)
+                {
+                    ev = current;
+                    if (current.Destination == src && p.Match(ev))
+                    {
+                        _deferedQueue.Remove(ev);
+                        break;
+                    }
+                }
+            } while (enumerator.MoveNext());
+            return ev;
+        }
+
+        private static void WriteMessage(string message)
+        {
+            Log.WriteLine(message);
+        }
     }
 }

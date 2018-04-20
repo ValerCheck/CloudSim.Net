@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudSim.Sharp.Core.Predicates;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,6 +35,12 @@ namespace CloudSim.Sharp.Core
         {
             get { return _state; }
             set { _state = value; }
+        }
+
+        public SimEvent EventBuffer
+        {
+            get { return _eventBuffer; }
+            set { _eventBuffer = value; }
         }
 
         public SimEntity(string name)
@@ -103,17 +110,120 @@ namespace CloudSim.Sharp.Core
             if (!CloudSim.Running) return;
             CloudSim.Pause(Id, delay);
         }
-
-        public void SetEventBuffer(SimEvent e)
+        
+        public int NumEventsWaiting(Predicate p)
         {
-            _eventBuffer = e;
+            return CloudSim.Waiting(Id, p);
         }
+
+        public int NumEventsWaiting()
+        {
+            return CloudSim.Waiting(Id, CloudSim.SIM_ANY);
+        }
+
+        public SimEvent SelectEvent(Predicate p)
+        {
+            if (!CloudSim.Running) return null;
+
+            return CloudSim.Select(Id, p);
+        }
+
+        public SimEvent CancelEvent(Predicate p)
+        {
+            if (!CloudSim.Running) return null;
+
+            return CloudSim.Cancel(Id, p);
+        }
+
+        public SimEvent GetNextEvent(Predicate p)
+        {
+            if (!CloudSim.Running) return null;
+
+            if (NumEventsWaiting(p) > 0)
+            {
+                return SelectEvent(p);
+            }
+
+            return null;
+        }
+
+        public void WaitForEvent(Predicate p)
+        {
+            if (!CloudSim.Running) return;
+            CloudSim.Wait(Id, p);
+            State = WAITING;
+        }
+
+        public SimEvent GetNextEvent()
+        {
+            return GetNextEvent(CloudSim.SIM_ANY);
+        }
+
+        public virtual void Run()
+        {
+            SimEvent ev = _eventBuffer != null ?
+                _eventBuffer : GetNextEvent();
+
+            while (ev != null)
+            {
+                ProcessEvent(ev);
+                if (State != RUNNABLE) break;
+                ev = GetNextEvent();
+            }
+
+            _eventBuffer = null;
+        }
+
+        public abstract void StartEntity();
+
+        public abstract void ProcessEvent(SimEvent e);
+
+        public abstract void ShutdownEntity();
+
+        #region Send Methods
+
+        public void Send(int entityId, double delay, int cloudSimTag, object data = null)
+        {
+            if (entityId < 0)
+            {
+                Log.WriteConcatLine(Name, ".send(): Error - invalid entity id", entityId);
+                return;
+            }
+
+            if (delay < 0) delay = 0;
+
+            if (double.IsInfinity(delay))
+            {
+                throw new ArgumentException("The specified delay is infinite value");
+            }
+
+            int srcId = Id;
+            
+            Schedule(entityId, delay, cloudSimTag, data);
+        }
+
+        public void Send(string entityName, double delay, int cloudSimTag, object data = null)
+        {
+            Send(CloudSim.GetEntityId(entityName), delay, cloudSimTag, data);
+        }
+
+        public void SendNow(int entityId, double delay, int cloudSimTag, object data = null)
+        {
+            Send(entityId, 0, cloudSimTag, data);
+        }
+
+        public void SendNow(string entityName, double delay, int cloudSimTag, object data = null)
+        {
+            Send(CloudSim.GetEntityId(entityName), delay, cloudSimTag, data);
+        }
+
+        #endregion
 
         public object Clone()
         {
             SimEntity copy = (SimEntity) MemberwiseClone();
             copy.Name = Name;
-            copy.SetEventBuffer(null);
+            copy.EventBuffer = null;
             return copy;
         }
     }
