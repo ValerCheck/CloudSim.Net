@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudSim.Sharp.ConsoleSample", "CloudSim.Net\CloudSim.Sharp.ConsoleSample.csproj", "{957C1FF7-35E5-482B-9EFF-10D33AF8FFE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudSim.Sharp.Core", "CloudSim.Net.Core\CloudSim.Sharp.Core.csproj", "{CFB51360-A5C5-4150-B2DE-A673EBA96F95}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudSim.Sharp", "CloudSim.Sharp\CloudSim.Sharp.csproj", "{5A54AA67-F9A7-4EF9-8F8E-5684AB1874AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudSim.Sharp.Tests", "CloudSim.Sharp.Tests\CloudSim.Sharp.Tests.csproj", "{067456C0-086C-46A8-B37F-1405717B7BFC}"
@@ -39,22 +37,6 @@ Global
 		{957C1FF7-35E5-482B-9EFF-10D33AF8FFE6}.Release|x64.Build.0 = Release|Any CPU
 		{957C1FF7-35E5-482B-9EFF-10D33AF8FFE6}.Release|x86.ActiveCfg = Release|Any CPU
 		{957C1FF7-35E5-482B-9EFF-10D33AF8FFE6}.Release|x86.Build.0 = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|ARM.Build.0 = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|x64.Build.0 = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Debug|x86.Build.0 = Debug|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|ARM.ActiveCfg = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|ARM.Build.0 = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|x64.ActiveCfg = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|x64.Build.0 = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|x86.ActiveCfg = Release|Any CPU
-		{CFB51360-A5C5-4150-B2DE-A673EBA96F95}.Release|x86.Build.0 = Release|Any CPU
 		{5A54AA67-F9A7-4EF9-8F8E-5684AB1874AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A54AA67-F9A7-4EF9-8F8E-5684AB1874AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A54AA67-F9A7-4EF9-8F8E-5684AB1874AF}.Debug|ARM.ActiveCfg = Debug|Any CPU

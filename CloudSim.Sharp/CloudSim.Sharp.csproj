@@ -40,9 +40,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\CloudSim.cs" />
+    <Compile Include="Core\DeferredQueue.cs" />
+    <Compile Include="Core\FutureQueue.cs" />
+    <Compile Include="Core\Predicates\Predicate.cs" />
+    <Compile Include="Core\Predicates\PredicateAny.cs" />
+    <Compile Include="Core\Predicates\PredicateFrom.cs" />
+    <Compile Include="Core\Predicates\PredicateNone.cs" />
+    <Compile Include="Core\Predicates\PredicateNotFrom.cs" />
+    <Compile Include="Core\Predicates\PredicateNotType.cs" />
+    <Compile Include="Core\Predicates\PredicateType.cs" />
+    <Compile Include="Core\SimEntity.cs" />
+    <Compile Include="Core\SimEvent.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
