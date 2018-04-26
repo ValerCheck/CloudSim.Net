@@ -198,7 +198,12 @@ namespace CloudSim.Sharp.Core
             }
 
             int srcId = Id;
-            
+
+            if (entityId != srcId)
+            {
+                delay += GetNetworkDelay(srcId, entityId);
+            }
+
             Schedule(entityId, delay, cloudSimTag, data);
         }
 
@@ -218,6 +223,15 @@ namespace CloudSim.Sharp.Core
         }
 
         #endregion
+
+        private double GetNetworkDelay(int src, int dst)
+        {
+            if (NetworkTopology.IsNetworkEnabled)
+            {
+                return NetworkTopology.GetDelay(src, dst);
+            }
+            return 0;
+        }
 
         public object Clone()
         {

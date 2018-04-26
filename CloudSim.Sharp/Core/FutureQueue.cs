@@ -51,12 +51,9 @@ namespace CloudSim.Sharp.Core
             return ((IEnumerable<SimEvent>)_sortedSet).GetEnumerator();
         }
 
-        IEnumerator IEnumerable.Enumerator
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            get
-            {
-                return ((IEnumerable<SimEvent>)_sortedSet).GetEnumerator();
-            }
+            return ((IEnumerable<SimEvent>)_sortedSet).GetEnumerator();
         }
     }
 }

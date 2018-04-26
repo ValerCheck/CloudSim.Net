@@ -53,6 +53,14 @@
     <Compile Include="Core\SimEntity.cs" />
     <Compile Include="Core\SimEvent.cs" />
     <Compile Include="Log.cs" />
+    <Compile Include="NetworkTopology.cs" />
+    <Compile Include="Network\DelayMatrixFloat.cs" />
+    <Compile Include="Network\FloydWarshallFloat.cs" />
+    <Compile Include="Network\GraphReaderBrite.cs" />
+    <Compile Include="Network\IGraphReader.cs" />
+    <Compile Include="Network\TopologicalGraph.cs" />
+    <Compile Include="Network\TopologicalLink.cs" />
+    <Compile Include="Network\TopologicalNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
