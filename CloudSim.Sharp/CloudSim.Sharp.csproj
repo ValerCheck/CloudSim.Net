@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\CloudSim.cs" />
+    <Compile Include="Core\CloudSimShutdown.cs" />
+    <Compile Include="Core\CloudSimTags.cs" />
     <Compile Include="Core\DeferredQueue.cs" />
     <Compile Include="Core\FutureQueue.cs" />
     <Compile Include="Core\Predicates\Predicate.cs" />

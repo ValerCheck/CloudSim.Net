@@ -20,6 +20,7 @@ namespace CloudSim.Sharp.Core
         private static IDictionary<string, SimEntity> _entitiesByName;
 
         private static IDictionary<int, Predicate> _waitPredicates;
+        private static bool _abruptTerminate = false;
 
         public static bool Running
         {
@@ -296,6 +297,11 @@ namespace CloudSim.Sharp.Core
                 }
             } while (enumerator.MoveNext());
             return ev;
+        }
+
+        public static void AbruptlyTerminate()
+        {
+            _abruptTerminate = true;
         }
 
         private static void WriteMessage(string message)
