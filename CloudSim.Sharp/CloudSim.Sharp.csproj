@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\CLoudInformationService.cs" />
     <Compile Include="Core\CloudSim.cs" />
     <Compile Include="Core\CloudSimShutdown.cs" />
     <Compile Include="Core\CloudSimTags.cs" />
