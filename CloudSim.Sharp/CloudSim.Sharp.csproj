@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cloudlet.cs" />
+    <Compile Include="CloudletScheduler.cs" />
     <Compile Include="Core\CLoudInformationService.cs" />
     <Compile Include="Core\CloudSim.cs" />
     <Compile Include="Core\CloudSimShutdown.cs" />
@@ -55,6 +57,10 @@
     <Compile Include="Core\Predicates\PredicateType.cs" />
     <Compile Include="Core\SimEntity.cs" />
     <Compile Include="Core\SimEvent.cs" />
+    <Compile Include="Datacenter.cs" />
+    <Compile Include="DatacenterCharacteristics.cs" />
+    <Compile Include="Host.cs" />
+    <Compile Include="Lists\HostList.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="NetworkTopology.cs" />
     <Compile Include="Network\DelayMatrixFloat.cs" />
@@ -64,7 +70,18 @@
     <Compile Include="Network\TopologicalGraph.cs" />
     <Compile Include="Network\TopologicalLink.cs" />
     <Compile Include="Network\TopologicalNode.cs" />
+    <Compile Include="Pe.cs" />
+    <Compile Include="Lists\PeList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provisioners\BwProvisioner.cs" />
+    <Compile Include="Provisioners\BwProvisionerSimple.cs" />
+    <Compile Include="Provisioners\PeProvisioner.cs" />
+    <Compile Include="Provisioners\PeProvisionerSimple.cs" />
+    <Compile Include="Provisioners\RamProvisioner.cs" />
+    <Compile Include="Provisioners\RamProvisionerSimple.cs" />
+    <Compile Include="Vm.cs" />
+    <Compile Include="VmScheduler.cs" />
+    <Compile Include="VmStateHistoryEntry.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -27,6 +27,11 @@ namespace CloudSim.Sharp.Core
             get { return _running; }
         }
 
+        public static double Clock
+        {
+            get { return _clock; }
+        }
+
         public static void Initialize()
         {
             Log.WriteLine("Initialising...");
