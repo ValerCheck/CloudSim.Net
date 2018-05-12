@@ -79,6 +79,7 @@
     <Compile Include="Provisioners\PeProvisionerSimple.cs" />
     <Compile Include="Provisioners\RamProvisioner.cs" />
     <Compile Include="Provisioners\RamProvisionerSimple.cs" />
+    <Compile Include="UtilizationModel.cs" />
     <Compile Include="Vm.cs" />
     <Compile Include="VmScheduler.cs" />
     <Compile Include="VmStateHistoryEntry.cs" />
