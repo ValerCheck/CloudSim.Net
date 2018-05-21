@@ -8,6 +8,8 @@ namespace CloudSim.Sharp.Core
     {
         private static int NOT_FOUND = -1;
 
+        private static double minTimeBetweenEvents = 0.1;
+
         private static bool _running;
 
         protected static FutureQueue _futureQueue;
@@ -312,6 +314,11 @@ namespace CloudSim.Sharp.Core
         private static void WriteMessage(string message)
         {
             Log.WriteLine(message);
+        }
+
+        public static double GetMinTimeBetweenEvents()
+        {
+            return minTimeBetweenEvents;
         }
     }
 }
