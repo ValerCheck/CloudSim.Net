@@ -43,6 +43,7 @@
     <Compile Include="Cloudlet.cs" />
     <Compile Include="CloudletScheduler.cs" />
     <Compile Include="CloudletSchedulerDynamicWorkload.cs" />
+    <Compile Include="CloudletSchedulerSpaceShared.cs" />
     <Compile Include="CloudletSchedulerTimeShared.cs" />
     <Compile Include="Core\CLoudInformationService.cs" />
     <Compile Include="Core\CloudSim.cs" />
