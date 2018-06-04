@@ -45,6 +45,7 @@
     <Compile Include="CloudletSchedulerDynamicWorkload.cs" />
     <Compile Include="CloudletSchedulerSpaceShared.cs" />
     <Compile Include="CloudletSchedulerTimeShared.cs" />
+    <Compile Include="Consts.cs" />
     <Compile Include="Core\CLoudInformationService.cs" />
     <Compile Include="Core\CloudSim.cs" />
     <Compile Include="Core\CloudSimShutdown.cs" />
@@ -82,12 +83,15 @@
     <Compile Include="Provisioners\PeProvisionerSimple.cs" />
     <Compile Include="Provisioners\RamProvisioner.cs" />
     <Compile Include="Provisioners\RamProvisionerSimple.cs" />
+    <Compile Include="ResCloudlet.cs" />
     <Compile Include="UtilizationModel.cs" />
     <Compile Include="UtilizationModelFull.cs" />
     <Compile Include="UtilizationModelNull.cs" />
     <Compile Include="UtilizationModelStochastic.cs" />
     <Compile Include="Vm.cs" />
     <Compile Include="VmScheduler.cs" />
+    <Compile Include="VmSchedulerSpaceShared.cs" />
+    <Compile Include="VmSchedulerTimeShared.cs" />
     <Compile Include="VmStateHistoryEntry.cs" />
   </ItemGroup>
   <ItemGroup />

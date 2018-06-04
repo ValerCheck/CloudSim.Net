@@ -22,7 +22,7 @@ namespace CloudSim.Sharp
             PeList = peList;
             PeMap = new Dictionary<string, List<Pe>>();
             MipsMap = new Dictionary<string, List<double>>();
-            AvailableMips = PeList.GetTotalMips();
+            AvailableMips = _peList.Select(x => x.Mips).Sum();
             VmsMigratingIn = new List<string>();
             VmsMigratingOut = new List<string>();
         }
@@ -34,7 +34,7 @@ namespace CloudSim.Sharp
         public void DeallocatePesForAllVms()
         {
             MipsMap.Clear();
-            AvailableMips = PeList.GetTotalMips();
+            AvailableMips = _peList.Select(x => x.Mips).Sum();
             foreach (Pe pe in PeList)
             {
                 pe.PeProvisioner.DeallocateMipsForAllVms();
