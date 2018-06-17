@@ -89,6 +89,7 @@
     <Compile Include="UtilizationModelNull.cs" />
     <Compile Include="UtilizationModelStochastic.cs" />
     <Compile Include="Vm.cs" />
+    <Compile Include="VmAllocationPolicy.cs" />
     <Compile Include="VmScheduler.cs" />
     <Compile Include="VmSchedulerSpaceShared.cs" />
     <Compile Include="VmSchedulerTimeShared.cs" />

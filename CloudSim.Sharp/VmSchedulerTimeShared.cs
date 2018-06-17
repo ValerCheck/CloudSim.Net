@@ -144,7 +144,7 @@ namespace CloudSim.Sharp
 
                             index++;
 
-                            peProvisioner = PeList[index].PeProvisioner;
+                            peProvisioner = PeList[index].PeProvisioner; 
                             availableMips = peProvisioner.AvailableMips;
                         }
                     }
