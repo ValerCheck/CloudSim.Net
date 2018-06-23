@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace CloudSim.Sharp.Provisioners
 {
@@ -27,6 +23,8 @@ namespace CloudSim.Sharp.Provisioners
 
         public abstract bool AllocateMipsForVm(string vmUid, double mips);
 
+        public abstract bool AllocateMipsForVm(Vm vm, List<double> mips);
+
         public abstract List<double> GetAllocatedMipsForVm(Vm vm);
 
         public abstract double GetTotalAllocatedMipsForVm(Vm vm);
@@ -35,7 +33,7 @@ namespace CloudSim.Sharp.Provisioners
 
         public abstract void DeallocateMipsForVm(Vm vm);
 
-        public void DeallocateMipsForAllVms()
+        public virtual void DeallocateMipsForAllVms()
         {
             AvailableMips = Mips;
         }

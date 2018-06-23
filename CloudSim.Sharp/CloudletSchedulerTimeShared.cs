@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace CloudSim.Sharp
 {
-    public class ResCloudlet { }
-
-    class CloudletSchedulerTimeShared : CloudletScheduler
+    public class CloudletSchedulerTimeShared : CloudletScheduler
     {
 
         protected int currentCPUs;
