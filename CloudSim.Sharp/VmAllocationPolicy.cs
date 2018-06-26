@@ -9,7 +9,7 @@ namespace CloudSim.Sharp
     public abstract class VmAllocationPolicy
     {
 
-        private List<Host> HostList { get; set; }
+        public List<Host> HostList { get; set; }
 
         public VmAllocationPolicy(List<Host> list)
         {

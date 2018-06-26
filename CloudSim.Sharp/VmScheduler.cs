@@ -82,14 +82,17 @@ namespace CloudSim.Sharp
             return max;
         }
 
-        public double GetPeCapacity()
+        public double PeCapacity
         {
-            if (PeList == null || PeList.Count == 0)
+            get
             {
-                Log.WriteLine("Pe list is empty");
-                return 0;
+                if (PeList == null || PeList.Count == 0)
+                {
+                    Log.WriteLine("Pe list is empty");
+                    return 0;
+                }
+                return PeList[0].Mips;
             }
-            return PeList[0].Mips;
         }
 
         public List<Pe> PeList

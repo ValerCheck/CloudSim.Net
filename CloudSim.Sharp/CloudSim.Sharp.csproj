@@ -63,7 +63,15 @@
     <Compile Include="Core\SimEvent.cs" />
     <Compile Include="Datacenter.cs" />
     <Compile Include="DatacenterCharacteristics.cs" />
+    <Compile Include="DataCloudTags.cs" />
+    <Compile Include="Distributions\IContinuosDistribution.cs" />
+    <Compile Include="File.cs" />
+    <Compile Include="FileAttribute.cs" />
+    <Compile Include="HarddriveStorage.cs" />
     <Compile Include="Host.cs" />
+    <Compile Include="IStorage.cs" />
+    <Compile Include="IStorageFileWorker.cs" />
+    <Compile Include="IStorageInfo.cs" />
     <Compile Include="Lists\HostList.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="NetworkTopology.cs" />
@@ -84,15 +92,18 @@
     <Compile Include="Provisioners\RamProvisioner.cs" />
     <Compile Include="Provisioners\RamProvisionerSimple.cs" />
     <Compile Include="ResCloudlet.cs" />
+    <Compile Include="SanStorage.cs" />
     <Compile Include="UtilizationModel.cs" />
     <Compile Include="UtilizationModelFull.cs" />
     <Compile Include="UtilizationModelNull.cs" />
     <Compile Include="UtilizationModelStochastic.cs" />
     <Compile Include="Vm.cs" />
     <Compile Include="VmAllocationPolicy.cs" />
+    <Compile Include="VmAllocationPolicySimple.cs" />
     <Compile Include="VmScheduler.cs" />
     <Compile Include="VmSchedulerSpaceShared.cs" />
     <Compile Include="VmSchedulerTimeShared.cs" />
+    <Compile Include="VmSchedulerTimeSharedOverSubscription.cs" />
     <Compile Include="VmStateHistoryEntry.cs" />
   </ItemGroup>
   <ItemGroup />

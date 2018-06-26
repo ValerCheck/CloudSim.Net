@@ -1,11 +1,13 @@
 ﻿using CloudSim.Sharp.Core.Predicates;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace CloudSim.Sharp.Core
 {
     public class CloudSim
     {
+        private static DateTime _dateTime;
         private static int NOT_FOUND = -1;
 
         private static double minTimeBetweenEvents = 0.1;
@@ -44,6 +46,7 @@ namespace CloudSim.Sharp.Core
             _waitPredicates = new Dictionary<int, Predicate>();
             _clock = 0;
             _running = false;
+            _dateTime = new DateTime();
         }
 
         public static PredicateAny SIM_ANY = new PredicateAny();
@@ -319,6 +322,12 @@ namespace CloudSim.Sharp.Core
         public static double GetMinTimeBetweenEvents()
         {
             return minTimeBetweenEvents;
+        }
+
+        public static DateTime GetSimulationDateTime()
+        {
+
+            return _dateTime;
         }
     }
 }

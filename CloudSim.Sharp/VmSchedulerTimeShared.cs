@@ -42,10 +42,10 @@ namespace CloudSim.Sharp
         }
 
 
-        protected bool AllocatePesForVm(String vmUid, List<Double> mipsShareRequested)
+        protected virtual bool AllocatePesForVm(String vmUid, List<Double> mipsShareRequested)
         {
             double totalRequestedMips = 0;
-            double peMips = GetPeCapacity();
+            double peMips = PeCapacity;
             foreach (Double mips in mipsShareRequested)
             {
 
