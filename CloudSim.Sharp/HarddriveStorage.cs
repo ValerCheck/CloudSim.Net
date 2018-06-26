@@ -15,7 +15,6 @@ namespace CloudSim.Sharp
         private IContinuosDistribution _gen;
         private double _currentSize;
         private readonly double _capacity;
-        private double _maxTransferRate;
         private double _latency;
         private double _avgSeekTime;
 
@@ -40,7 +39,7 @@ namespace CloudSim.Sharp
         public string Name { get; }
         public double Capacity { get; }
         public double CurrentSize { get; }
-        public double MaxTransferRate { get; }
+        public virtual double MaxTransferRate { get; private set; }
 
         public double AvailableSpace
         {
@@ -95,7 +94,7 @@ namespace CloudSim.Sharp
 
             _latency = 0.00417;     
             _avgSeekTime = 0.009;   
-            _maxTransferRate = 133; 
+            MaxTransferRate = 133; 
         }
 
         public bool IsFull()
@@ -128,7 +127,7 @@ namespace CloudSim.Sharp
             return true;
         }
 
-        public double AddReservedFile(File file)
+        public virtual double AddReservedFile(File file)
         {
             if (file == null)
             {
@@ -286,7 +285,7 @@ namespace CloudSim.Sharp
             return true;
         }
 
-        public double AddFile(File file)
+        public virtual double AddFile(File file)
         {
             double result = 0.0;
            
@@ -319,7 +318,7 @@ namespace CloudSim.Sharp
             return result;
         }
 
-        public double AddFile(List<File> list)
+        public virtual double AddFile(List<File> list)
         {
             double result = 0.0;
             if (list == null || list.Count == 0)
@@ -335,7 +334,7 @@ namespace CloudSim.Sharp
             return result;
         }
 
-        public File DeleteFile(String fileName)
+        public virtual File DeleteFile(String fileName)
         {
             File resultFile = null;
 
@@ -361,10 +360,10 @@ namespace CloudSim.Sharp
             return resultFile;
         }
 
-        public double DeleteFile(String fileName, File file) 
+        public virtual double DeleteFile(String fileName, File file) 
             => DeleteFile(file);
 
-        public double DeleteFile(File file)
+        public virtual double DeleteFile(File file)
         {
             double result = 0.0;
             
