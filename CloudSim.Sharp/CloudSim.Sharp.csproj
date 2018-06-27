@@ -69,6 +69,8 @@
     <Compile Include="FileAttribute.cs" />
     <Compile Include="HarddriveStorage.cs" />
     <Compile Include="Host.cs" />
+    <Compile Include="InfoPacket.cs" />
+    <Compile Include="IPacket.cs" />
     <Compile Include="IStorage.cs" />
     <Compile Include="IStorageFileWorker.cs" />
     <Compile Include="IStorageInfo.cs" />
