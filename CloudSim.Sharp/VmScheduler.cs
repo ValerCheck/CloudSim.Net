@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CloudSim.Sharp.Lists;
 
 namespace CloudSim.Sharp
 {
@@ -22,7 +23,7 @@ namespace CloudSim.Sharp
             PeList = peList;
             PeMap = new Dictionary<string, List<Pe>>();
             MipsMap = new Dictionary<string, List<double>>();
-            AvailableMips = _peList.Select(x => x.Mips).Sum();
+            AvailableMips = PeList.GetTotalMips();
             VmsMigratingIn = new List<string>();
             VmsMigratingOut = new List<string>();
         }
@@ -34,7 +35,7 @@ namespace CloudSim.Sharp
         public void DeallocatePesForAllVms()
         {
             MipsMap.Clear();
-            AvailableMips = _peList.Select(x => x.Mips).Sum();
+            AvailableMips = PeList.GetTotalMips();
             foreach (Pe pe in PeList)
             {
                 pe.PeProvisioner.DeallocateMipsForAllVms();

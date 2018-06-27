@@ -123,7 +123,7 @@ namespace CloudSim.Sharp
 
         public bool IsSuitableForVm(Vm vm)
         {
-            return (VmScheduler.GetPeCapacity() >= vm.GetCurrentRequestedMaxMips()
+            return (VmScheduler.PeCapacity >= vm.GetCurrentRequestedMaxMips()
                 && VmScheduler.AvailableMips >= vm.GetCurrentRequestedTotalMips()
                 && RamProvisioner.IsSuitableForVm(vm, vm.GetCurrentRequestedRam())
                 && BwProvisioner.IsSuitableForVm(vm, vm.GetCurrentRequestedBw()));

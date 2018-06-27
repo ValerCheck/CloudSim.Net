@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CloudSim.Sharp.Network
 {
@@ -21,9 +18,9 @@ namespace CloudSim.Sharp.Network
         {
             _graph = new TopologicalGraph();
 
-            if (!File.Exists(fileName)) throw new FileNotFoundException();
+            if (!System.IO.File.Exists(fileName)) throw new FileNotFoundException();
 
-            using (var streamReader = new StreamReader(File.OpenRead(fileName)))
+            using (var streamReader = new StreamReader(System.IO.File.OpenRead(fileName)))
             {
                 string newLine = Environment.NewLine;
                 string nextLine = null;
