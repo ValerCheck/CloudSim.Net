@@ -2,39 +2,154 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Threading;
 
 namespace CloudSim.Sharp.Core
 {
     public class CloudSim
     {
-        private static DateTime _dateTime;
+        private static readonly string CLOUDSIM_VERSION_STRING = "3.0";
+        private static int _cisId = -1;
+        private static int _shutdownId = -1;
+        private static CLoudInformationService _cis = null;
         private static int NOT_FOUND = -1;
+        private static bool _traceFlag = false;
+        private static DateTime _dateTime;
+        private static double _terminateAt = -1;
+        private static double _minTimeBetweenEvents = 0.1;
 
-        private static double minTimeBetweenEvents = 0.1;
+        private static void InitCommonVariable(bool traceFlag, int numUser)
+        {
+            Initialize();
+            _traceFlag = traceFlag;
 
-        private static bool _running;
+            CloudSimShutdown shutdown = new CloudSimShutdown(nameof(CloudSimShutdown), numUser);
+            _shutdownId = shutdown.Id;
+        }
 
+        public static void Init(int numUser, bool traceFlag)
+        {
+            try
+            {
+                InitCommonVariable(traceFlag, numUser);
+                _cis = new CLoudInformationService(nameof(CLoudInformationService));
+                _cisId = _cis.Id;
+            }
+            catch (ArgumentException s)
+            {
+                Log.WriteLine("CloudSim.init(): The simulation has been terminated due to an unexpected error");
+                Log.WriteLine(s.Message);
+            }
+            catch (Exception e)
+            {
+                Log.WriteLine("CloudSim.init(): The simulation has been terminated due to an unexpected error");
+                Log.WriteLine(e.Message);
+            }
+        }
+
+        public static void Init(int numUser, Calendar cal, bool traceFlag, double periodBetweenEvents)
+        {
+            if (periodBetweenEvents <= 0)
+            {
+                throw new ArgumentException($"The minimal time between events should be positive, but is: {periodBetweenEvents}");
+            }
+
+            Init(numUser, traceFlag);
+            _minTimeBetweenEvents = periodBetweenEvents;
+        }
+
+        public static double StartSimulation()
+        {
+            Log.WriteLine($"Starting CloudSim version {CLOUDSIM_VERSION_STRING}");
+		    try
+            {
+                double clock = Run();
+
+                // reset all static variables
+                _cisId = -1;
+                _shutdownId = -1;
+                _cis = null;
+                _traceFlag = false;
+
+                return clock;
+            }
+            catch (ArgumentException e) {
+                Log.WriteLine(e.StackTrace);
+                throw new NullReferenceException("CloudSim.startCloudSimulation() :"
+                        + " Error - you haven't initialized CloudSim.");
+            }
+        }
+
+        private static void ValidateDelay(double delay)
+        {
+            if (delay < 0)
+            {
+                throw new ArgumentException("Send delay can't be negative.");
+            }
+        }
+
+        public static void AbruptlyTerminate()
+        {
+            _abruptTerminate = true;
+        }
+        
+        public static DateTime GetSimulationDateTime()
+        {
+            return _dateTime;
+        }
+
+
+
+        public static void StopSimulation()
+        {
+		    try {
+                RunStop();
+            } catch (ArgumentException e) {
+                throw new NullReferenceException("CloudSim.stopCloudSimulation() : "
+                        + "Error - can't stop Cloud Simulation.");
+            }
+        }
+        
+        public static bool TerminateSimulation()
+        {
+            _running = false;
+            WriteMessage("Simulation: Reached termination time.");
+            return true;
+        }
+
+        public static bool TerminateSimulation(double time)
+        {
+            if (time <= _clock) return false;
+            _terminateAt = time;
+            return true;
+        }
+
+        public static double GetMinTimeBetweenEvents()
+        {
+            return _minTimeBetweenEvents;
+        }
+
+        public static int CloudInfoServiceEntityId => _cisId;
+
+        public static List<int> CloudResourceList
+        {
+            get
+            {
+                return (List<int>) _cis?.ResList;
+            }
+        } 
+        
         protected static FutureQueue _futureQueue;
-        protected static DeferredQueue _deferedQueue;
-
+        protected static DeferredQueue _deferredQueue;
         private static double _clock;
-
         private static List<SimEntity> _entities;
-
+        private static bool _running;
         private static IDictionary<string, SimEntity> _entitiesByName;
-
         private static IDictionary<int, Predicate> _waitPredicates;
+        private static bool _paused = false;
+        private static long _pauseAt = -1;
         private static bool _abruptTerminate = false;
-
-        public static bool Running
-        {
-            get { return _running; }
-        }
-
-        public static double Clock
-        {
-            get { return _clock; }
-        }
 
         public static void Initialize()
         {
@@ -42,7 +157,7 @@ namespace CloudSim.Sharp.Core
             _entities = new List<SimEntity>();
             _entitiesByName = new Dictionary<string, SimEntity>();
             _futureQueue = new FutureQueue();
-            _deferedQueue = new DeferredQueue();
+            _deferredQueue = new DeferredQueue();
             _waitPredicates = new Dictionary<int, Predicate>();
             _clock = 0;
             _running = false;
@@ -50,8 +165,18 @@ namespace CloudSim.Sharp.Core
         }
 
         public static PredicateAny SIM_ANY = new PredicateAny();
-
         public static PredicateNone SIM_NONE = new PredicateNone();
+
+        public static double Clock
+        {
+            get { return _clock; }
+            private set { _clock = value; }
+        }
+
+        public static int GetNumEntities()
+        {
+            return _entities.Count;
+        }
 
         public static SimEntity GetEntity(int id)
         {
@@ -93,7 +218,7 @@ namespace CloudSim.Sharp.Core
             SimEvent evt;
             if (_running)
             {
-                evt = new SimEvent(SimEvent.CREATE, _clock, src:1, dest:0, tag:0, edata:e);
+                evt = new SimEvent(SimEvent.CREATE, _clock, src: 1, dest: 0, tag: 0, edata: e);
                 _futureQueue.AddEvent(evt);
             }
             if (e.Id == -1)
@@ -118,12 +243,78 @@ namespace CloudSim.Sharp.Core
             e.StartEntity();
         }
 
-        private static void ValidateDelay(double delay)
+        /*
+         * TODO: Review this method
+         */
+        public static bool RunClockTick()
         {
-            if (delay < 0)
+            SimEntity ent;
+            bool queue_empty;
+
+            int entities_size = _entities.Count;
+
+            for (int i = 0; i < entities_size; i++)
             {
-                throw new ArgumentException("Send delay can't be negative.");
+                ent = _entities[i];
+                if (ent.State == SimEntity.RUNNABLE) ent.Run();
             }
+
+            if (_futureQueue.Size() > 0)
+            {
+                List<SimEvent> toRemove = new List<SimEvent>();
+                IEnumerator<SimEvent> fit = _futureQueue.GetEnumerator();
+                queue_empty = false;
+                SimEvent first = fit.Current;
+                ProcessEvent(first);
+                _futureQueue.Remove(first);
+
+                fit = _futureQueue.GetEnumerator();
+
+                bool tryMore = fit.Current != null;
+                do
+                {
+                    SimEvent next = fit.Current;
+                    if (next.EventTime == first.EventTime)
+                    {
+                        ProcessEvent(next);
+                        toRemove.Add(next);
+                        tryMore = fit.MoveNext();
+                    }
+                    else
+                    {
+                        tryMore = false;
+                    }
+                } while (tryMore);
+
+                _futureQueue.RemoveAll(toRemove);
+            }
+            else
+            {
+                queue_empty = true;
+                _running = false;
+                WriteMessage("Simulation: No more future events");
+            }
+
+            return queue_empty;
+        }
+
+        public static void RunStop()
+        {
+            WriteMessage("Simulation completed.");
+        }
+
+        public static void Hold(int src, long delay)
+        {
+            SimEvent e = new SimEvent(SimEvent.HOLD_DONE, _clock + delay, src);
+            _futureQueue.AddEvent(e);
+            _entities[src].State = SimEntity.HOLDING;
+        }
+
+        public static void Pause(int src, double delay)
+        {
+            SimEvent ev = new SimEvent(SimEvent.HOLD_DONE, _clock + delay, src);
+            _futureQueue.AddEvent(ev);
+            _entities.Find(e => e.Id == src).State = SimEntity.HOLDING;
         }
 
         public static void Send(int src, int dest, double delay, int tag, object data)
@@ -145,18 +336,64 @@ namespace CloudSim.Sharp.Core
             var entity = _entities.Find(e => e.Id == src);
 
             entity.State = SimEntity.WAITING;
-            
+
             if (p != SIM_ANY)
             {
                 _waitPredicates.Add(src, p);
             }
         }
 
-        public static void Pause(int src, double delay)
+        public static int Waiting(int d, Predicate p)
         {
-            SimEvent ev = new SimEvent(SimEvent.HOLD_DONE, _clock + delay, src);
-            _futureQueue.AddEvent(ev);
-            _entities.Find(e => e.Id == src).State = SimEntity.HOLDING;
+            int count = 0;
+            SimEvent ev;
+            IEnumerator<SimEvent> enumerator = _deferredQueue.GetEnumerator();
+
+            do
+            {
+                var current = enumerator.Current;
+                if (current != null)
+                {
+                    ev = current;
+                    if (ev.Destination == d && p.Match(ev))
+                    {
+                        count++;
+                    }
+                }
+            } while (enumerator.MoveNext());
+            return count;
+        }
+
+        public static SimEvent Select(int src, Predicate p)
+        {
+            SimEvent ev = null;
+            IEnumerator<SimEvent> enumerator = _deferredQueue.GetEnumerator();
+            do
+            {
+                var current = enumerator.Current;
+                if (current != null)
+                {
+                    ev = current;
+                    if (current.Destination == src && p.Match(ev))
+                    {
+                        _deferredQueue.Remove(ev);
+                        break;
+                    }
+                }
+            } while (enumerator.MoveNext());
+            return ev;
+        }
+
+        public static SimEvent FindFirstDeferred(int src, Predicate p)
+        {
+            SimEvent ev = null;
+            IEnumerator<SimEvent> iter = _deferredQueue.GetEnumerator();
+            do
+            {
+                ev = iter.Current;
+                if (ev.Destination == src && p.Match(ev)) break;
+            } while (iter.MoveNext());
+            return ev;
         }
 
         public static SimEvent Cancel(int src, Predicate p)
@@ -241,16 +478,16 @@ namespace CloudSim.Sharp.Core
                                     destEnt.EventBuffer = (SimEvent)e.Clone();
                                     destEnt.State = SimEntity.RUNNABLE;
                                     _waitPredicates.Remove(dest);
-                                } 
+                                }
                                 else
                                 {
-                                    _deferedQueue.AddEvent(e);
+                                    _deferredQueue.AddEvent(e);
                                 }
                             }
-                        } 
+                        }
                         else
                         {
-                            _deferedQueue.AddEvent(e);
+                            _deferredQueue.AddEvent(e);
                         }
                     }
                     break;
@@ -268,48 +505,135 @@ namespace CloudSim.Sharp.Core
             }
         }
 
-        public static int Waiting(int d, Predicate p)
+        public static void RunStart()
         {
-            int count = 0;
-            SimEvent ev;
-            IEnumerator<SimEvent> enumerator = _deferedQueue.GetEnumerator();
-
-            do
+            _running = true;
+            foreach (SimEntity ent in _entities)
             {
-                var current = enumerator.Current;
-                if (current != null)
-                {
-                    ev = current;
-                    if (ev.Destination == d && p.Match(ev))
-                    {
-                        count++;
-                    }
-                }
-            } while (enumerator.MoveNext());
-            return count;
+                ent.StartEntity();
+            }
+
+            WriteMessage("Entities started.");
+        }
+        public static bool Running
+        {
+            get { return _running; }
         }
 
-        public static SimEvent Select(int src, Predicate p)
+        public static bool PauseSimulation()
         {
-            SimEvent ev = null;
-            IEnumerator<SimEvent> enumerator = _deferedQueue.GetEnumerator();
-            do
-            {
-                var current = enumerator.Current;
-                if (current != null)
-                {
-                    ev = current;
-                    if (current.Destination == src && p.Match(ev))
-                    {
-                        _deferedQueue.Remove(ev);
-                        break;
-                    }
-                }
-            } while (enumerator.MoveNext());
-            return ev;
+            _paused = true;
+            return _paused;
         }
 
-        public static void AbruptlyTerminate()
+        public static bool PauseSimulation(long time)
+        {
+            if (time <= _clock)
+            {
+                return false;
+            }
+            else
+            {
+                _pauseAt = time;
+            }
+            return true;
+        }
+
+        public static bool ResumeSimulation()
+        {
+            _paused = false;
+
+            if (_pauseAt <= _clock)
+            {
+                _pauseAt = -1;
+            }
+
+            return _paused;
+        }
+
+        public static double Run()
+        {
+            if (!Running)
+            {
+                RunStart();
+            }
+            while (true)
+            {
+                if (RunClockTick() || _abruptTerminate)
+                {
+                    break;
+                }
+
+                // this block allows termination of simulation at a specific time
+                if (_terminateAt > 0.0 && Clock >= _terminateAt)
+                {
+                    TerminateSimulation();
+                    Clock = _terminateAt;
+                    break;
+                }
+
+                if (_pauseAt != -1
+                        && ((_futureQueue.Size() > 0 && _clock <= _pauseAt 
+                        && _pauseAt <= _futureQueue.GetEnumerator().Current.EventTime) 
+                        || _futureQueue.Size() == 0 && _pauseAt <= _clock))
+                {
+                    PauseSimulation();
+                    _clock = _pauseAt;
+                }
+
+                while (_paused)
+                {
+                    try
+                    {
+                        Thread.Sleep(100);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.WriteLine(e.StackTrace);
+                    }
+                }
+            }
+
+            double clock = Clock;
+
+            FinishSimulation();
+            RunStop();
+
+            return clock;
+        }
+
+        public static void FinishSimulation()
+        {
+            if (!_abruptTerminate)
+            {
+                foreach (SimEntity ent in _entities)
+                {
+                    if (ent.State != SimEntity.FINISHED)
+                    {
+                        ent.Run();
+                    }
+                }
+            }
+
+            foreach (SimEntity ent in _entities)
+            {
+                ent.ShutdownEntity();
+            }
+
+            _entities = null;
+            _entitiesByName = null;
+            _futureQueue = null;
+            _deferredQueue = null;
+            _clock = 0L;
+            _running = false;
+
+            _waitPredicates = null;
+            _paused = false;
+            _pauseAt = -1;
+            _abruptTerminate = false;
+        }
+
+        public static void AbruptallyTerminate()
         {
             _abruptTerminate = true;
         }
@@ -319,15 +643,9 @@ namespace CloudSim.Sharp.Core
             Log.WriteLine(message);
         }
 
-        public static double GetMinTimeBetweenEvents()
+        public static bool IsPaused()
         {
-            return minTimeBetweenEvents;
-        }
-
-        public static DateTime GetSimulationDateTime()
-        {
-
-            return _dateTime;
+            return _paused;
         }
     }
 }

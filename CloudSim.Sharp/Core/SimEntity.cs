@@ -212,7 +212,7 @@ namespace CloudSim.Sharp.Core
             Send(CloudSim.GetEntityId(entityName), delay, cloudSimTag, data);
         }
 
-        public void SendNow(int entityId, double delay, int cloudSimTag, object data = null)
+        public void SendNow(int entityId, int cloudSimTag, object data = null)
         {
             Send(entityId, 0, cloudSimTag, data);
         }

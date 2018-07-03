@@ -10,7 +10,7 @@ namespace CloudSim.Sharp
 {
     public class Cloudlet
     {
-        private readonly int cloudletId;
+        private readonly int _cloudletId;
 
         private int userId;
 
@@ -66,7 +66,7 @@ namespace CloudSim.Sharp
 
         public const int FAILED_RESOURCE_UNAVAILABLE = 9;
 
-        protected int vmId;
+        protected int _vmId;
 
         protected double costPerBw;
 
@@ -100,7 +100,7 @@ namespace CloudSim.Sharp
                     utilizationModelBw,
                     false)
         {
-            vmId = -1;
+            _vmId = -1;
             accumulatedBwCost = 0;
             costPerBw = 0;
             requiredFiles = new List<String>();
@@ -128,7 +128,7 @@ namespace CloudSim.Sharp
                     utilizationModelBw,
                     record)
         {
-            vmId = -1;
+            _vmId = -1;
             accumulatedBwCost = 0.0;
             costPerBw = 0.0;
 
@@ -156,7 +156,7 @@ namespace CloudSim.Sharp
                     utilizationModelBw,
                     false)
         {
-            vmId = -1;
+            _vmId = -1;
             accumulatedBwCost = 0.0;
             costPerBw = 0.0;
 
@@ -176,7 +176,7 @@ namespace CloudSim.Sharp
         {
             userId = -1;
             status = CREATED;
-            this.cloudletId = cloudletId;
+            _cloudletId = cloudletId;
             numberOfPes = pesNumber;
             execStartTime = 0.0;
             finishTime = -1.0;
@@ -191,7 +191,7 @@ namespace CloudSim.Sharp
             index = -1;
             this.record = record;
 
-            vmId = -1;
+            _vmId = -1;
             accumulatedBwCost = 0.0;
             costPerBw = 0.0;
 
@@ -321,7 +321,7 @@ namespace CloudSim.Sharp
             String msg = null;
             if (history == null)
             {
-                msg = "No history is recorded for Cloudlet #" + cloudletId;
+                msg = "No history is recorded for Cloudlet #" + _cloudletId;
             }
             else
             {
@@ -751,12 +751,12 @@ namespace CloudSim.Sharp
                 history = new StringBuilder(1000);
                 history.Append("Time below denotes the simulation time.");
                 history.Append(newline);
-                history.Append("Time (sec)       Description Cloudlet #" + cloudletId);
+                history.Append("Time (sec)       Description Cloudlet #" + _cloudletId);
                 history.Append(newline);
                 history.Append("------------------------------------------");
                 history.Append(newline);
                 history.Append(Core.CloudSim.Clock.ToString(num));
-                history.Append("   Creates Cloudlet ID #" + cloudletId);
+                history.Append("   Creates Cloudlet ID #" + _cloudletId);
                 history.Append(newline);
             }
 
@@ -769,21 +769,14 @@ namespace CloudSim.Sharp
             return status;
         }
 
-        public int GetCloudletId()
+        public int CloudletId => _cloudletId;
+        
+        public int VmId
         {
-            return cloudletId;
+            get { return _vmId; }
+            set { _vmId = value; }
         }
-
-        public int GetVmId()
-        {
-            return vmId;
-        }
-
-        public void SetVmId(int vmId)
-        {
-            this.vmId = vmId;
-        }
-
+        
         public double GetActualCPUTime()
         {
             return GetFinishTime() - GetExecStartTime();

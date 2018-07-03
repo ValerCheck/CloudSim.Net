@@ -116,7 +116,7 @@ namespace CloudSim.Sharp
 
         public int GetCloudletId()
         {
-            return _cloudlet.GetCloudletId();
+            return _cloudlet.CloudletId;
         }
 
         public int GetUserId()
