@@ -34,6 +34,7 @@ namespace CloudSim.Sharp.Core
         public const int RESOURCE_CHARACTERISTICS_REQUEST = BASE + 15;
         public const int INFOPKT_SUBMIT = NETBASE + 5;
         public const int INFOPKT_RETURN = NETBASE + 6;
+        public const int CLOUDLET_RETURN = BASE + 20;
         public const int CLOUDLET_SUBMIT = BASE + 21;
         public const int CLOUDLET_SUBMIT_ACK = BASE + 22;
         public const int CLOUDLET_CANCEL = BASE + 23;
