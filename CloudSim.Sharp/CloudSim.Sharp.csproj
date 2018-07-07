@@ -89,6 +89,7 @@
     <Compile Include="Network\TopologicalGraph.cs" />
     <Compile Include="Network\TopologicalLink.cs" />
     <Compile Include="Network\TopologicalNode.cs" />
+    <Compile Include="ParameterException.cs" />
     <Compile Include="Pe.cs" />
     <Compile Include="Lists\PeList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
