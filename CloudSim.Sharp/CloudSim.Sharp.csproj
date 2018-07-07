@@ -107,6 +107,7 @@
     <Compile Include="UtilizationModelNull.cs" />
     <Compile Include="UtilizationModelStochastic.cs" />
     <Compile Include="Util\ExecutionTimeMeasurer.cs" />
+    <Compile Include="Util\IWorkloadModel.cs" />
     <Compile Include="Vm.cs" />
     <Compile Include="VmAllocationPolicy.cs" />
     <Compile Include="VmAllocationPolicySimple.cs" />
