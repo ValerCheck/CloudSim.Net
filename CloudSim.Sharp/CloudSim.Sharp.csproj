@@ -79,6 +79,7 @@
     <Compile Include="IStorageInfo.cs" />
     <Compile Include="Lists\CloudletList.cs" />
     <Compile Include="Lists\HostList.cs" />
+    <Compile Include="Lists\ResCloudletList.cs" />
     <Compile Include="Lists\VmList.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="NetworkTopology.cs" />
