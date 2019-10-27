@@ -116,6 +116,7 @@
     <Compile Include="VmSchedulerTimeShared.cs" />
     <Compile Include="VmSchedulerTimeSharedOverSubscription.cs" />
     <Compile Include="VmStateHistoryEntry.cs" />
+    <Compile Include="Vm\UtilizationHistory.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
