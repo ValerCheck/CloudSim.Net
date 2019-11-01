@@ -46,12 +46,14 @@
     <Compile Include="CloudletSchedulerSpaceShared.cs" />
     <Compile Include="CloudletSchedulerTimeShared.cs" />
     <Compile Include="Consts.cs" />
-    <Compile Include="Core\CLoudInformationService.cs" />
+    <Compile Include="Core\CloudInformationService.cs" />
     <Compile Include="Core\CloudSim.cs" />
     <Compile Include="Core\CloudSimShutdown.cs" />
     <Compile Include="Core\CloudSimTags.cs" />
     <Compile Include="Core\DeferredQueue.cs" />
     <Compile Include="Core\FutureQueue.cs" />
+    <Compile Include="Core\IChangeableId.cs" />
+    <Compile Include="Core\IIdentifiable.cs" />
     <Compile Include="Core\Predicates\Predicate.cs" />
     <Compile Include="Core\Predicates\PredicateAny.cs" />
     <Compile Include="Core\Predicates\PredicateFrom.cs" />
@@ -61,9 +63,15 @@
     <Compile Include="Core\Predicates\PredicateType.cs" />
     <Compile Include="Core\SimEntity.cs" />
     <Compile Include="Core\SimEvent.cs" />
-    <Compile Include="Datacenter.cs" />
+    <Compile Include="Core\ISimulation.cs" />
+    <Compile Include="Core\Simulation.cs" />
+    <Compile Include="Core\SimulationExtensions.cs" />
+    <Compile Include="Core\SimulationNull.cs" />
+    <Compile Include="Datacenters\Datacenter.cs" />
     <Compile Include="DatacenterBroker.cs" />
-    <Compile Include="DatacenterCharacteristics.cs" />
+    <Compile Include="Datacenters\DatacenterCharacteristics.cs" />
+    <Compile Include="Datacenters\DatacenterNull.cs" />
+    <Compile Include="Datacenters\TimeZoned.cs" />
     <Compile Include="DataCloudTags.cs" />
     <Compile Include="Distributions\IContinuosDistribution.cs" />
     <Compile Include="File.cs" />
@@ -108,7 +116,7 @@
     <Compile Include="UtilizationModelStochastic.cs" />
     <Compile Include="Util\ExecutionTimeMeasurer.cs" />
     <Compile Include="Util\IWorkloadModel.cs" />
-    <Compile Include="Vm.cs" />
+    <Compile Include="Vm\Vm.cs" />
     <Compile Include="VmAllocationPolicy.cs" />
     <Compile Include="VmAllocationPolicySimple.cs" />
     <Compile Include="VmScheduler.cs" />
@@ -117,6 +125,8 @@
     <Compile Include="VmSchedulerTimeSharedOverSubscription.cs" />
     <Compile Include="VmStateHistoryEntry.cs" />
     <Compile Include="Vm\UtilizationHistory.cs" />
+    <Compile Include="Vm\UtilizationHistoryNull.cs" />
+    <Compile Include="Vm\VmNull.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

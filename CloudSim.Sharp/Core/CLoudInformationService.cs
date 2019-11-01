@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CloudSim.Sharp.Core
 {
-    public class CLoudInformationService : SimEntity
+    public class CloudInformationService : SimEntity
     {
         private readonly ICollection<int> _resList;
 
@@ -27,7 +27,7 @@ namespace CloudSim.Sharp.Core
             get { return _arList; }
         }
 
-        public CLoudInformationService(string name) : base(name)
+        public CloudInformationService(string name) : base(name)
         {
             _resList = new LinkedList<int>();
             _arList = new LinkedList<int>();

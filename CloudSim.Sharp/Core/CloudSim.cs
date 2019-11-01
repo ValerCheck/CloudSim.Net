@@ -12,7 +12,7 @@ namespace CloudSim.Sharp.Core
         private static readonly string CLOUDSIM_VERSION_STRING = "3.0";
         private static int _cisId = -1;
         private static int _shutdownId = -1;
-        private static CLoudInformationService _cis = null;
+        private static CloudInformationService _cis = null;
         private static int NOT_FOUND = -1;
         private static bool _traceFlag = false;
         private static DateTime _dateTime;
@@ -33,7 +33,7 @@ namespace CloudSim.Sharp.Core
             try
             {
                 InitCommonVariable(traceFlag, numUser);
-                _cis = new CLoudInformationService(nameof(CLoudInformationService));
+                _cis = new CloudInformationService(nameof(CloudInformationService));
                 _cisId = _cis.Id;
             }
             catch (ArgumentException s)
