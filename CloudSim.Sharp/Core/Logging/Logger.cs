@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CloudSim.Sharp.Core
+namespace CloudSim.Sharp.Core.Logging
 {
-    public interface IChangeableId : IIdentifiable
+    public class Logger
     {
-        new long Id { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CloudSim.Sharp.Core
+namespace CloudSim.Sharp.Core.Interfaces
 {
     public interface ISimulation
     {
