@@ -21,7 +21,7 @@ namespace CloudSim.Sharp.Core
          * @param _simulation The CloudSim instance that represents the _simulation the Entity is related to
          * @throws IllegalArgumentException when the entity name is invalid
          */
-        public CloudSimEntity(_simulation _simulation)
+        public CloudSimEntity(Simulation _simulation)
         {
             set_simulation(_simulation);
             setId(-1);
