@@ -1,4 +1,5 @@
-﻿using CloudSim.Sharp.Core.Predicates;
+﻿using CloudSim.Sharp.Core.Interfaces;
+using CloudSim.Sharp.Core.Predicates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +8,19 @@ using System.Threading.Tasks;
 
 namespace CloudSim.Sharp.Core
 {
-    public abstract class SimEntity : ICloneable
+    public abstract class SimEntity : ICloneable, INameable, IRunnable, IComparable<SimEntity>
     {
-        public static int RUNNABLE = 0;
-        public static int WAITING = 1;
-        public static int HOLDING = 2;
-        public static int FINISHED = 3;
+        public enum State { RUNNABLE, WAITING, HOLDING, FINISHED }
 
         private string _name;
-        private int _id;
+        private long _id;
         private SimEvent _eventBuffer;
         private int _state;
 
-        public int Id
+        public long Id
         {
             get { return _id; }
-            set { _id = value; }
+            private set { _id = value; }
         }
 
         public string Name

@@ -57,6 +57,8 @@
     <Compile Include="Core\Interfaces\IDelayable.cs" />
     <Compile Include="Core\Interfaces\IIdentifiable.cs" />
     <Compile Include="Core\Interfaces\INameable.cs" />
+    <Compile Include="Core\Interfaces\IRunnable.cs" />
+    <Compile Include="Core\Interfaces\ISimEntity.cs" />
     <Compile Include="Core\Logging\Logger.cs" />
     <Compile Include="Core\Logging\LoggerFactory.cs" />
     <Compile Include="Core\Predicates\Predicate.cs" />
