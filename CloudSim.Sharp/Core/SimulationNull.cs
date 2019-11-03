@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CloudSim.Sharp.Core
 {
@@ -17,7 +14,7 @@ namespace CloudSim.Sharp.Core
         public override string ClockStr => string.Empty;
         public override double ClockInMinutes => 0.0;
         public override double ClockInHours => 0.0;
-        public override SimEvent FindFirstDeferred(SimEntity dest, Predicate<SimEvent> predicate) { return SimEvent.NULL; }
+        public override SimEvent FindFirstDeferred(SimEntity dest, Predicate<SimEvent> predicate) => SimEvent.NULL;
 
         public override CloudInformationService CloudInfoService => null;
 
