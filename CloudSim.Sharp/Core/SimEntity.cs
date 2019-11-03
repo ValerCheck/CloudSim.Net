@@ -8,14 +8,13 @@ using System.Threading.Tasks;
 
 namespace CloudSim.Sharp.Core
 {
-    public abstract class SimEntity : ICloneable, INameable, IRunnable, IComparable<SimEntity>
+    public abstract class SimEntity : ISimEntity
     {
-        public enum State { RUNNABLE, WAITING, HOLDING, FINISHED }
-
         private string _name;
         private long _id;
-        private SimEvent _eventBuffer;
-        private int _state;
+        private State _state;
+
+        ISimEntity NULL = new SimEntityNullBase();
 
         public long Id
         {
@@ -29,17 +28,17 @@ namespace CloudSim.Sharp.Core
             private set { _name = value; }
         }
 
-        public int State
+        public virtual State State
         {
             get { return _state; }
             set { _state = value; }
         }
 
-        public SimEvent EventBuffer
-        {
-            get { return _eventBuffer; }
-            set { _eventBuffer = value; }
-        }
+        public bool IsStarted => throw new NotImplementedException();
+
+        public bool IsAlive => throw new NotImplementedException();
+
+        public ISimulation Simulation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public SimEntity(string name)
         {
@@ -49,7 +48,7 @@ namespace CloudSim.Sharp.Core
             }
             _name = name;
             _id = -1;
-            _state = RUNNABLE;
+            _state = State.RUNNABLE;
             CloudSim.AddEntity(this);
         }
 
@@ -165,7 +164,7 @@ namespace CloudSim.Sharp.Core
             while (ev != null)
             {
                 ProcessEvent(ev);
-                if (State != RUNNABLE) break;
+                if (State !=  State.RUNNABLE) break;
                 ev = GetNextEvent();
             }
 
@@ -237,6 +236,51 @@ namespace CloudSim.Sharp.Core
             copy.Name = Name;
             copy.EventBuffer = null;
             return copy;
+        }
+
+        public bool Schedule(SimEvent evt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Schedule(int tag)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Schedule(double delay, int tag, object data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Schedule(double delay, int tag)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Schedule(ISimEntity dest, double delay, int tag, object data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Schedule(ISimEntity dest, double delay, int tag)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISimEntity SetName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int CompareTo(SimEntity other)
+        {
+            throw new NotImplementedException();
         }
     }
 }
