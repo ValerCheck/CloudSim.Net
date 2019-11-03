@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CloudSim.Sharp.Core.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace CloudSim.Sharp.Core
