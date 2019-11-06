@@ -22,6 +22,8 @@ namespace CloudSim.Sharp.Core
         public abstract bool IsRunning { get; }
         public abstract double LastCloudletProcessingUpdate { get; set; }
 
+        Predicate<SimEvent> ISimulation.ANY_EVT => evt => true;
+
         /**
 * Defines IDs for a list of {@link ChangeableId} entities that don't
 * have one already assigned. Such entities can be a {@link Cloudlet},

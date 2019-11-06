@@ -1,4 +1,6 @@
-﻿using CloudSim.Sharp.Core.Logging;
+﻿using CloudSim.Sharp.Core.Interfaces;
+using CloudSim.Sharp.Core.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,25 +11,59 @@ namespace CloudSim.Sharp.Core
 {
     public abstract class CloudSimEntity : SimEntity
     {
-        private static Logger LOGGER = LoggerFactory.GetLogger(nameof(CloudSimEntity));
+        private static ILogger LOGGER = LoggerFactory.GetLogger(nameof(CloudSimEntity));
 
-        Simulation _simulation;
+        ISimulation _simulation;
         bool _started;
         State _state;
+        string _name;
+        private SimEvent _buffer;
+        long _id;
 
-        /**
-         * Creates a new entity.
-         *
-         * @param _simulation The CloudSim instance that represents the _simulation the Entity is related to
-         * @throws IllegalArgumentException when the entity name is invalid
-         */
-        public CloudSimEntity(Simulation _simulation)
+        public override long Id
         {
-            set_simulation(_simulation);
-            setId(-1);
-            state = State.RUNNABLE;
-            __simulation.addEntity(this);
-            _started = false;
+            get => _id;
+            protected set
+            {
+                if (_id != value)
+                {
+                    long id = _id >= 0 ? _id : Simulation.NumEntities;
+                    _name = $"{GetType().Name}{id}";
+                }
+            }
+        }
+
+        public SimEvent EventBuffer
+        {
+            get => _buffer;
+            protected set => _buffer = value;
+        }
+
+        public override ISimulation Simulation
+        {
+            get => _simulation;
+            protected set { _simulation = value; }
+        }
+
+        public override string Name
+        {
+            get => _name;
+            protected set => _name = value;
+        }
+
+        public bool Started
+        {
+            get => _started;
+            protected set => _started = value;
+        }
+
+        public CloudSimEntity(Simulation simulation)
+        {
+            Simulation = simulation;
+            Id = -1;
+            State = State.RUNNABLE;
+            Simulation.AddEntity(this);
+            Started = false;
         }
 
 
@@ -38,101 +74,82 @@ namespace CloudSim.Sharp.Core
          *
          * @see #startEntity()
          */
-        public void start()
+        public override void Start()
         {
-            startEntity();
-            this.setStarted(true);
+            StartEntity();
+            Started = true;
         }
 
-        public void shutdownEntity()
+        public override void ShutdownEntity() => State = State.FINISHED;
+
+        protected abstract void StartEntity();
+
+
+        public override bool Schedule(SimEntity dest, double delay, int tag, object data)
         {
-            setState(State.FINISHED);
+            return Schedule(new CloudSimEvent(delay, this, dest, tag, data));
         }
 
-        /**
-         * Defines the logic to be performed by the entity when the _simulation starts.
-         */
-        protected abstract void startEntity();
 
-        
-        public bool schedule( SimEntity dest,  double delay,  int tag,  object data)
+        public override bool Schedule(double delay, int tag, object data)
         {
-            return schedule(new CloudSimEvent(delay, this, dest, tag, data));
+            return Schedule(this, delay, tag, data);
         }
 
-        
-    public bool schedule( double delay,  int tag,  object data)
+
+        public override bool Schedule(double delay, int tag)
         {
-            return schedule(this, delay, tag, data);
+            return Schedule(this, delay, tag, null);
         }
 
-        
-    public bool schedule( double delay,  int tag)
+
+        public bool Schedule(SimEntity dest, double delay, int tag)
         {
-            return schedule(this, delay, tag, null);
+            return Schedule(dest, delay, tag, null);
         }
 
-        
-    public bool schedule( SimEntity dest,  double delay,  int tag)
+
+        public override bool Schedule(int tag, object data)
         {
-            return schedule(dest, delay, tag, null);
+            return Schedule(this, 0, tag, data);
         }
 
-        
-    public bool schedule( int tag,  object data)
-        {
-            return schedule(this, 0, tag, data);
-        }
 
-        
-    public bool schedule( SimEvent evt)
+        public override bool Schedule(SimEvent evt)
         {
-            if (!canSendEvent(evt))
+            if (!CanSendEvent(evt))
             {
                 return false;
             }
-            _simulation.send(evt);
+            Simulation.Send(evt);
             return true;
         }
 
-        private bool canSendEvent( SimEvent evt)
+        private bool CanSendEvent(SimEvent evt)
         {
             /**
              * If the _simulation has finished and an  {@link CloudSimTags#END_OF__simulation}
              * message is sent, it has to be processed to enable entities to shutdown.
              */
-            if (!_simulation.isRunning() && evt.getTag() != CloudSimTags.END_OF__simulation)
+            if (!Simulation.IsRunning && evt.Tag != CloudSimTags.END_OF_SIMULATION)
             {
-                LOGGER.warn(
-                    "{}: {}: Cannot send events before _simulation starts or after it finishes. Trying to send message {} to {}",
-                    get_simulation().clockStr(), this, evt.getTag(), evt.getDestination());
+                LOGGER.Warn(
+                    "{0}: {1}: Cannot send events before _simulation starts or after it finishes. Trying to send message {2} to {3}",
+                    Simulation.ClockStr, this, evt.Tag, evt.Destination);
                 return false;
             }
 
             return true;
         }
 
-        /**
-         * Sends an event to another entity with no delay.
-         *
-         * @param dest the destination entity
-         * @param tag  An user-defined number representing the type of event.
-         * @param data The data to be sent with the event.
-         */
-        public void scheduleNow( SimEntity dest,  int tag,  object data)
+        public void ScheduleNow(SimEntity dest, int tag, object data)
         {
-            schedule(dest, 0, tag, data);
+            Schedule(dest, 0, tag, data);
         }
 
-        /**
-         * Sends an event to another entity with <b>no</b> attached data and no delay.
-         *
-         * @param dest the destination entity
-         * @param tag  An user-defined number representing the type of event.
-         */
-        public void scheduleNow( SimEntity dest,  int tag)
+        public void ScheduleNow(SimEntity dest, int tag)
         {
-            schedule(dest, 0, tag, null);
+            Schedule(dest, 0, tag, null);
         }
 
         /**
@@ -142,9 +159,9 @@ namespace CloudSim.Sharp.Core
          * @param tag  An user-defined number representing the type of event.
          * @param data The data to be sent with the event.
          */
-        public void scheduleFirstNow( SimEntity dest,  int tag,  object data)
+        public void ScheduleFirstNow(SimEntity dest, int tag, object data)
         {
-            scheduleFirst(dest, 0, tag, data);
+            ScheduleFirst(dest, 0, tag, data);
         }
 
         /**
@@ -152,9 +169,9 @@ namespace CloudSim.Sharp.Core
          * @param dest the destination entity
          * @param tag  An user-defined number representing the type of event.
          */
-        public void scheduleFirstNow( SimEntity dest,  int tag)
+        public void ScheduleFirstNow(SimEntity dest, int tag)
         {
-            scheduleFirst(dest, 0, tag, null);
+            ScheduleFirst(dest, 0, tag, null);
         }
 
         /**
@@ -164,9 +181,9 @@ namespace CloudSim.Sharp.Core
          * @param delay How many seconds after the current _simulation time the event should be sent
          * @param tag   An user-defined number representing the type of event.
          */
-        public void scheduleFirst( SimEntity dest,  double delay,  int tag)
+        public void scheduleFirst(SimEntity dest, double delay, int tag)
         {
-            scheduleFirst(dest, delay, tag, null);
+            ScheduleFirst(dest, delay, tag, null);
         }
 
         /**
@@ -177,15 +194,15 @@ namespace CloudSim.Sharp.Core
          * @param tag   An user-defined number representing the type of event.
          * @param data  The data to be sent with the event.
          */
-        public void scheduleFirst( SimEntity dest,  double delay,  int tag,  object data)
+        public void ScheduleFirst(SimEntity dest, double delay, int tag, object data)
         {
-             CloudSimEvent evt = new CloudSimEvent(delay, this, dest, tag, data);
-            if (!canSendEvent(evt))
+            CloudSimEvent evt = new CloudSimEvent(delay, this, dest, tag, data);
+            if (!CanSendEvent(evt))
             {
                 return;
             }
 
-            _simulation.sendFirst(evt);
+            Simulation.SendFirst(evt);
         }
 
         /**
@@ -193,19 +210,19 @@ namespace CloudSim.Sharp.Core
          *
          * @param delay the time period for which the entity will be inactive
          */
-        public void pause( double delay)
+        public void Pause(double delay)
         {
             if (delay < 0)
             {
                 throw new ArgumentException("Negative delay supplied.");
             }
 
-            if (!_simulation.isRunning())
+            if (!Simulation.IsRunning)
             {
                 return;
             }
 
-            _simulation.pauseEntity(this, delay);
+            Simulation.PauseEntity(this, delay);
         }
 
         /**
@@ -215,14 +232,14 @@ namespace CloudSim.Sharp.Core
          * @param predicate The event selection predicate
          * @return the _simulation event; or {@link SimEvent#NULL} if not found or the _simulation is not running
          */
-        public SimEvent selectEvent( Predicate<SimEvent> predicate)
+        public SimEvent SelectEvent(Predicate<SimEvent> predicate)
         {
-            if (!_simulation.isRunning())
+            if (!Simulation.IsRunning)
             {
                 return SimEvent.NULL;
             }
 
-            return _simulation.select(this, predicate);
+            return Simulation.Select(this, predicate);
         }
 
         /**
@@ -232,9 +249,9 @@ namespace CloudSim.Sharp.Core
          * @param predicate the event selection predicate
          * @return the removed event or {@link SimEvent#NULL} if not found
          */
-        public SimEvent cancelEvent( Predicate<SimEvent> predicate)
+        public SimEvent cancelEvent(Predicate<SimEvent> predicate)
         {
-            return _simulation.isRunning() ? _simulation.cancel(this, predicate) : SimEvent.NULL;
+            return Simulation.IsRunning ? Simulation.Cancel(this, predicate) : SimEvent.NULL;
         }
 
         /**
@@ -244,14 +261,14 @@ namespace CloudSim.Sharp.Core
          * @param predicate The predicate to match
          * @return the _simulation event; or {@link SimEvent#NULL} if not found or the _simulation is not running
          */
-        public SimEvent getNextEvent( Predicate<SimEvent> predicate)
+        public SimEvent GetNextEvent(Predicate<SimEvent> predicate)
         {
-            if (!_simulation.isRunning())
+            if (!Simulation.IsRunning)
             {
                 return SimEvent.NULL;
             }
 
-            return selectEvent(predicate);
+            return SelectEvent(predicate);
         }
 
         /**
@@ -260,9 +277,9 @@ namespace CloudSim.Sharp.Core
          *
          * @return the _simulation event; or {@link SimEvent#NULL} if not found or the _simulation is not running
          */
-        public SimEvent getNextEvent()
+        public SimEvent GetNextEvent()
         {
-            return getNextEvent(_simulation.ANY_EVT);
+            return GetNextEvent(Simulation.ANY_EVT);
         }
 
         /**
@@ -271,39 +288,39 @@ namespace CloudSim.Sharp.Core
          *
          * @param predicate The predicate to match
          */
-        public void waitForEvent( Predicate<SimEvent> predicate)
+        public void waitForEvent(Predicate<SimEvent> predicate)
         {
-            if (!_simulation.isRunning())
+            if (!Simulation.IsRunning)
             {
                 return;
             }
 
-            _simulation.wait(this, predicate);
-            state = State.WAITING;
+            Simulation.Wait(this, predicate);
+            State = State.WAITING;
         }
 
-        
-    public void run()
+
+        public override void Run()
         {
-            run(Double.MAX_VALUE);
+            Run(double.MaxValue);
         }
 
-        public void run( double until)
+        public void Run(double until)
         {
-            SimEvent evt = buffer == null ? getNextEvent(e->e.getTime() <= until) : buffer;
+            SimEvent evt = _buffer == null ? GetNextEvent(e => e.Time <= until) : _buffer;
 
             while (evt != SimEvent.NULL)
             {
-                processEvent(evt);
-                if (state != State.RUNNABLE)
+                ProcessEvent(evt);
+                if (State != State.RUNNABLE)
                 {
                     break;
                 }
 
-                evt = getNextEvent(e->e.getTime() <= until);
+                evt = GetNextEvent(e => e.Time <= until);
             }
 
-            buffer = null;
+            _buffer = null;
         }
 
         /**
@@ -316,229 +333,145 @@ namespace CloudSim.Sharp.Core
          * @return A clone of the entity
          * @throws CloneNotSupportedException when the entity doesn't support cloning
          */
+
+        public override object Clone()
+        {
+            CloudSimEntity copy = (CloudSimEntity)base.Clone();
+            copy.Name = _name;
+            copy.Simulation = _simulation;
+            copy.EventBuffer = null;
+            return copy;
+        }
         
-    protected  object clone() throws CloneNotSupportedException
+        // --------------- EVENT / MESSAGE SEND WITH NETWORK DELAY METHODS ------------------
+
+        /**
+         * Sends an event/message to another entity by <b>delaying</b> the
+         * _simulation time from the current time, with a tag representing the event
+         * type.
+         *
+         * @param dest the destination entity
+         * @param delay       How many seconds after the current _simulation time the event should be sent.
+         *                    If delay is a negative number, then it will be changed to 0
+         * @param cloudSimTag an user-defined number representing the type of an event/message
+         * @param data        A reference to data to be sent with the event
+         */
+        protected void Send(SimEntity dest, double delay, int cloudSimTag, object data)
         {
-             CloudSimEntity copy = (CloudSimEntity) super.clone();
-        copy.setName(name);
-        copy.set_simulation(_simulation);
-        copy.setEventBuffer(null);
-        return copy;
-    }
+            dest.RequireNonNull();
+            if (dest.Id < 0)
+            {
+                LOGGER.Error("{0}.send(): invalid entity id {1} for {2}", Name, dest.Id, dest);
+                return;
+            }
 
-    
-    public _simulation get_simulation()
-    {
-        return _simulation;
-    }
+            // if delay is negative, then it doesn't make sense. So resets to 0.0
+            if (delay < 0)
+            {
+                delay = 0;
+            }
 
-    
-    public  SimEntity set_simulation( _simulation _simulation)
-    {
-        this._simulation = objects.requireNonNull(_simulation);
-        return this;
-    }
+            if (double.IsInfinity(delay))
+            {
+                throw new ArgumentException("The specified delay is infinite value");
+            }
 
-    
-    public SimEntity setName( String name) throws IllegalArgumentException
-    {
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Entity names cannot be empty.");
+#warning TO_BE_DONE
+            // only considers network delay when sending messages between different entities
+            //if (dest.Id != Id)
+            //{
+            //    delay += getNetworkDelay(getId(), dest.getId());
+            //}
+
+            Schedule(dest, delay, cloudSimTag, data);
         }
 
-        if (name.contains(" ")) {
-            throw new IllegalArgumentException("Entity names cannot contain spaces.");
-        }
-
-        this.name = name;
-        return this;
-    }
-
-    
-    public State getState()
-    {
-        return state;
-    }
-
-    /**
-     * Sets the entity state.
-     *
-     * @param state the new state
-     */
-    
-    public SimEntity setState( State state)
-    {
-        this.state = state;
-        return this;
-    }
-
-    /**
-     * Sets the entity id and defines its name based on such ID.
-     *
-     * @param id the new id
-     */
-    protected  void setId( int id)
-    {
-        this.id = id;
-        setAutomaticName();
-    }
-
-    /**
-     * Sets an automatic generated name for the entity.
-     */
-    private void setAutomaticName()
-    {
-         long id = this.id >= 0 ? this.id : this._simulation.getNumEntities();
-        this.name = String.format("%s%d", getClass().getSimpleName(), id);
-    }
-
-    // --------------- EVENT / MESSAGE SEND WITH NETWORK DELAY METHODS ------------------
-
-    /**
-     * Sends an event/message to another entity by <b>delaying</b> the
-     * _simulation time from the current time, with a tag representing the event
-     * type.
-     *
-     * @param dest the destination entity
-     * @param delay       How many seconds after the current _simulation time the event should be sent.
-     *                    If delay is a negative number, then it will be changed to 0
-     * @param cloudSimTag an user-defined number representing the type of an event/message
-     * @param data        A reference to data to be sent with the event
-     */
-    protected void send( SimEntity dest, double delay,  int cloudSimTag,  object data)
-    {
-        objects.requireNonNull(dest);
-        if (dest.getId() < 0)
+        /**
+         * Sends an event/message to another entity by <b>delaying</b> the
+         * _simulation time from the current time, with a tag representing the event
+         * type.
+         *
+         * @param dest    the destination entity
+         * @param delay       How many seconds after the current _simulation time the event should be sent.
+         *                    If delay is a negative number, then it will be changed to 0
+         * @param cloudSimTag an user-defined number representing the type of an
+         *                    event/message
+         */
+        protected void Send(SimEntity dest, double delay, int cloudSimTag)
         {
-            LOGGER.error("{}.send(): invalid entity id {} for {}", getName(), dest.getId(), dest);
-            return;
+            Send(dest, delay, cloudSimTag, null);
         }
 
-        // if delay is negative, then it doesn't make sense. So resets to 0.0
-        if (delay < 0)
+        /**
+         * Sends an event/message to another entity, with a tag representing the
+         * event type.
+         *
+         * @param dest    the destination entity
+         * @param cloudSimTag an user-defined number representing the type of an
+         *                    event/message
+         * @param data        A reference to data to be sent with the event
+         */
+        protected void SendNow(SimEntity dest, int cloudSimTag, object data)
         {
-            delay = 0;
+            Send(dest, 0, cloudSimTag, data);
         }
 
-        if (Double.isInfinite(delay))
+        /**
+         * Sends an event/message to another entity, with a tag representing the
+         * event type.
+         *
+         * @param dest    the destination entity
+         * @param cloudSimTag an user-defined number representing the type of an event/message
+         */
+        protected void SendNow(SimEntity dest, int cloudSimTag)
         {
-            throw new IllegalArgumentException("The specified delay is infinite value");
+            Send(dest, 0, cloudSimTag, null);
         }
 
-        // only considers network delay when sending messages between different entities
-        if (dest.getId() != getId())
+#warning TO_BE_DONE
+        /**
+         * Gets the network delay associated to the sent of a message from a given
+         * source to a given destination.
+         *
+         * @param src source of the message
+         * @param dst destination of the message
+         * @return delay to send a message from src to dst
+         */
+
+        //private double getNetworkDelay(long src, long dst)
+        //{
+        //    return Simulation.getNetworkTopology().getDelay(src, dst);
+        //}
+
+
+        public override bool IsStarted => Started;
+
+        public override bool IsAlive => State != State.FINISHED;
+
+        public override bool IsFinished => State == State.FINISHED;
+
+        public int CompareTo(SimEntity entity)
         {
-            delay += getNetworkDelay(getId(), dest.getId());
+            return Id.CompareTo(entity.Id);
         }
 
-        schedule(dest, delay, cloudSimTag, data);
-    }
 
-    /**
-     * Sends an event/message to another entity by <b>delaying</b> the
-     * _simulation time from the current time, with a tag representing the event
-     * type.
-     *
-     * @param dest    the destination entity
-     * @param delay       How many seconds after the current _simulation time the event should be sent.
-     *                    If delay is a negative number, then it will be changed to 0
-     * @param cloudSimTag an user-defined number representing the type of an
-     *                    event/message
-     */
-    protected void send( SimEntity dest,  double delay,  int cloudSimTag)
-    {
-        send(dest, delay, cloudSimTag, null);
-    }
+        public override bool Equals(object obj)
+        {
+            if (this == obj) return true;
+            if (obj == null || GetType() != obj.GetType()) return false;
 
-    /**
-     * Sends an event/message to another entity, with a tag representing the
-     * event type.
-     *
-     * @param dest    the destination entity
-     * @param cloudSimTag an user-defined number representing the type of an
-     *                    event/message
-     * @param data        A reference to data to be sent with the event
-     */
-    protected void sendNow( SimEntity dest,  int cloudSimTag,  object data)
-    {
-        send(dest, 0, cloudSimTag, data);
-    }
+            CloudSimEntity that = (CloudSimEntity)obj;
 
-    /**
-     * Sends an event/message to another entity, with a tag representing the
-     * event type.
-     *
-     * @param dest    the destination entity
-     * @param cloudSimTag an user-defined number representing the type of an event/message
-     */
-    protected void sendNow( SimEntity dest,  int cloudSimTag)
-    {
-        send(dest, 0, cloudSimTag, null);
-    }
+            if (Id != that.Id) return false;
+            return Simulation.Equals(that.Simulation);
+        }
 
-    /**
-     * Gets the network delay associated to the sent of a message from a given
-     * source to a given destination.
-     *
-     * @param src source of the message
-     * @param dst destination of the message
-     * @return delay to send a message from src to dst
-     */
-    private double getNetworkDelay( long src,  long dst)
-    {
-        return get_simulation().getNetworkTopology().getDelay(src, dst);
-    }
-
-    
-    public bool isStarted()
-    {
-        return started;
-    }
-
-    
-    public bool isAlive()
-    {
-        return state != State.FINISHED;
-    }
-
-    
-    public bool isFinished()
-    {
-        return state == State.FINISHED;
-    }
-
-    /**
-     * Defines if the entity has already started or not.
-     *
-     * @param started the start state to set
-     */
-    protected void setStarted( bool started)
-    {
-        this.started = started;
-    }
-
-    
-    public int compareTo( SimEntity entity)
-    {
-        return Long.compare(this.getId(), entity.getId());
-    }
-
-    
-    public bool equals( object object)
-    {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-
-         CloudSimEntity that = (CloudSimEntity)object;
-
-        if (id != that.id) return false;
-        return _simulation.equals(that._simulation);
-    }
-
-    public override int GetHashCode()
-    {
-        int result = _simulation.hashCode();
-        result = 31 * result + Long.hashCode(id);
-        return result;
+        public override int GetHashCode()
+        {
+            int result = Simulation.GetHashCode();
+            result = 31 * result + Id.GetHashCode();
+            return result;
+        }
     }
 }

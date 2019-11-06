@@ -10,7 +10,7 @@ namespace CloudSim.Sharp.Core.Interfaces
         bool IsStarted { get; }
         bool IsAlive { get; }
         bool IsFinished { get; }
-        ISimulation Simulation { get; set; }
+        ISimulation Simulation { get; }
         void ProcessEvent(SimEvent evt);
         bool Schedule(SimEvent evt);
         bool Schedule(int tag);
@@ -18,6 +18,7 @@ namespace CloudSim.Sharp.Core.Interfaces
         bool Schedule(double delay, int tag);
         bool Schedule(ISimEntity dest, double delay, int tag, object data);
         bool Schedule(ISimEntity dest, double delay, int tag);
+        bool Schedule(SimEntity dest, double delay, int tag, object data);
         bool Schedule(int tag, object data);
         void Start();
         void ShutdownEntity();

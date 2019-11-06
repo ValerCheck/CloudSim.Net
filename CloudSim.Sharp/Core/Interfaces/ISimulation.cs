@@ -5,7 +5,7 @@ namespace CloudSim.Sharp.Core.Interfaces
 {
     public interface ISimulation
     {
-        Predicate<SimEvent> ANY_EVT(SimEvent ev);
+        Predicate<SimEvent> ANY_EVT { get; }
 
         bool IsTerminationTimeSet { get; }
 

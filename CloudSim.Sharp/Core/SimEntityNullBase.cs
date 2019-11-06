@@ -25,5 +25,7 @@ namespace CloudSim.Sharp.Core
         public virtual bool Schedule(ISimEntity dest, double delay, int tag) => false;
         public virtual bool Schedule(int tag, object data) => false;
         public virtual ISimEntity SetName(string name) => this;
+
+        public bool Schedule(SimEntity dest, double delay, int tag, object data) => false;
     }
 }
