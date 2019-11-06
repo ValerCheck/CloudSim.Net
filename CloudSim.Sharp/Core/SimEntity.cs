@@ -10,24 +10,19 @@ namespace CloudSim.Sharp.Core
 {
     public abstract class SimEntity : ISimEntity
     {
-        public static ISimEntity NULL = new SimEntityNullBase();
+        private static Lazy<ISimEntity> _nullEntity = 
+            new Lazy<ISimEntity>(() => new SimEntityNullBase());
+
+        public static ISimEntity NULL => _nullEntity.Value;
 
         public long Id { get; private set; }
-
         public virtual string Name { get; private set; }
-
-        public virtual State State { get; set; }
-
+        public virtual State State { get; protected set; }
         public abstract bool IsStarted { get; }
-
         public abstract bool IsAlive { get; }
-
         public abstract bool IsFinished { get; }
-
         public abstract ISimulation Simulation { get; set; }
-
         public abstract void ProcessEvent(SimEvent evt);
-
         public abstract bool Schedule(SimEvent evt);
         public abstract bool Schedule(int tag);
         public abstract bool Schedule(double delay, int tag, object data);
@@ -35,13 +30,11 @@ namespace CloudSim.Sharp.Core
         public abstract bool Schedule(ISimEntity dest, double delay, int tag, object data);
         public abstract bool Schedule(ISimEntity dest, double delay, int tag);
         public abstract bool Schedule(int tag, object data);
-
         public abstract void Run();
-
         public abstract void Start();
         public abstract void ShutdownEntity();
         public abstract ISimEntity SetName(string name);
-        public abstract int CompareTo(SimEntity other);
+        public abstract int CompareTo(ISimEntity other);
         public abstract object Clone();
     }
 }

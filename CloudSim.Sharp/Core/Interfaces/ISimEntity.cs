@@ -4,9 +4,9 @@ namespace CloudSim.Sharp.Core.Interfaces
 {
     public enum State { RUNNABLE, WAITING, HOLDING, FINISHED };
 
-    public interface ISimEntity : ICloneable, INameable, IRunnable, IComparable<SimEntity>
+    public interface ISimEntity : ICloneable, INameable, IRunnable, IComparable<ISimEntity>
     {
-        State State { get; set; }
+        State State { get; }
         bool IsStarted { get; }
         bool IsAlive { get; }
         bool IsFinished { get; }

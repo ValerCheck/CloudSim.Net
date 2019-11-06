@@ -69,6 +69,7 @@
     <Compile Include="Core\Predicates\PredicateNotType.cs" />
     <Compile Include="Core\Predicates\PredicateType.cs" />
     <Compile Include="Core\SimEntity.cs" />
+    <Compile Include="Core\SimEntityNullBase.cs" />
     <Compile Include="Core\SimEvent.cs" />
     <Compile Include="Core\Interfaces\ISimulation.cs" />
     <Compile Include="Core\Simulation.cs" />
